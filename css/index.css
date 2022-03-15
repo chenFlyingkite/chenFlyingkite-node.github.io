@@ -1,0 +1,13 @@
+#eval {
+    background-color: aqua;
+    width: 100%;
+    height: 100%;
+}
+/* https://stackoverflow.com/questions/14643617/create-table-using-javascript */
+table {
+    border: 1px solid black;
+}
+
+th,td {
+    border: 1px solid #888;
+}
