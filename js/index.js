@@ -1,4 +1,5 @@
 //import TicTac from "js/TicTac";
+// import { powNK } from "./util";
 
 //-- Base implementation
 const allClicks = new Map();
@@ -6,6 +7,7 @@ function addClickListeners() {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach
     allClicks.forEach(function(value, key, map) {
         const e = document.getElementById(key);
+        //console.log(`${key[0]} -> ${value}`);
         if (e) {
             e.addEventListener("click", value);
         } else {
@@ -13,6 +15,22 @@ function addClickListeners() {
         }
     });
 }
+
+function callOnClick(domID) {
+    let e = document.getElementById(domID);
+    if (e) {
+        console.log(`id = ${domID}, e = ${e}, ${e.onclick}, ${e.onkeyup}`);
+        if (typeof e.onclick === "function") {
+            e.onclick.apply(e);
+        }
+    }
+}
+
+//----
+// constants
+const fixedDigit = 1;
+
+const MOD = powNKA(10, fixedDigit);
 
 //-------
 class TicTac {
@@ -78,7 +96,7 @@ class TicTac {
     }
 
     logError(tac, msg) {
-        console.log(`X_X X_X Omitted. tic = N/A, tac = ${getTime(tac)} : ${msg}`);
+        console.log(`X_X Omitted. tic = N/A, tac = ${getTime(tac)} : ${msg}`);
     }
 
     logTac(msg) {
@@ -124,50 +142,55 @@ function setupTimer() {
     setInterval(run, 1000);
 }
 
-// Define click events
+// Define events, id, function
 // id : function
-allClicks.set("send", function onSend(e) {
-    console.log("Hello!");
-    alert("Hello");
-});
-allClicks.set("make3x4", function onSend2(e) {
-    console.log("Hello! send2 " + e.target.value);
-    makeTable0("eval");
-});
 
-allClicks.set("makeTable", function (e) {
+//Deprecated
+// allClicks.set("send", function onSend(e) {
+//     console.log("Hello!");
+//     alert("Hello");
+// });
+
+// allClicks.set("make3x4", function onSend2(e) {
+//     console.log("Hello! send2 " + e.target.value);
+//     makeTable0("eval");
+// });
+
+// allClicks.set("makeTable", function (e) {
+//     const year = parseDom("year");
+//     const rate = parseDom("rateOfReturn");
+//     console.log(`y = ${year}, r = ${rate}`);
+//     makeTable0("eval");
+// });
+
+allClicks.set("funeralBtn", function (e) {
     const year = parseDom("year");
     const rate = parseDom("rateOfReturn");
-    console.log(`y = ${year}, r = ${rate}`);
-    makeTable0("eval");
-});
-
-allClicks.set("funeralTable", function (e) {
-    const year = parseDom("year");
-    const rate = parseDom("rateOfReturn");
-    const oneA = parseDom("funeralOneA");
-    console.log(`funeralTable, y = ${year}, r = ${rate}`);
+    const pay = parseDom("funeralPay");
+    console.log(`funeralBtn, y = ${year}, r = ${rate}`);
     tictac.tic();
-    const table = evalFuneralPension(oneA, year, rate);
+    const table = evalFuneralPension(pay, year, rate);
     makeTable("eval", table);
     let ms = tictac.tacL();
-    showSpent("計算 本人死亡 " + ms);
+    const name = e.target.innerText;
+    showSpent(`計算 ${name} ${ms}`);
 });
 
 allClicks.set("survivorTable", function (e) {
     const year = parseDom("year");
     const rate = parseDom("rateOfReturn");
-    const oneM = parseDom("survivorOneM");
-    console.log(`survivorTable, y = ${year}, r = ${rate}`);
+    const pay = parseDom("survivorPay");
+    console.log(`survivorPay, y = ${year}, r = ${rate}`);
     tictac.tic();
-    const table = evalSurvivalPension(oneM, year, rate);
+    const table = evalSurvivalPension(pay, year, rate);
     makeTable("eval", table);
     let ms = tictac.tacL();
-    showSpent("計算 遺屬年金 " + ms);
+    const name = e.target.innerText;
+    showSpent(`計算 ${name} ${ms}`);
 });
 
 function showSpent(ms) {
-    document.getElementById("spent").innerText = ms + " ms";
+    document.getElementById("spent").innerText = `${ms} ms`;
 }
 
 function parseDom(domID) {
@@ -213,6 +236,7 @@ function makeTable0(rootID) {
 // funeralTable
 // 本人死亡給付 = A(1+r)^N
 function evalFuneralPension(oneA, year, rate) {
+    const nf = MOD; // %.1f
     let ans = makeData(year, rate);
     let m = ans.length;
     let n = ans[0].length;
@@ -224,7 +248,7 @@ function evalFuneralPension(oneA, year, rate) {
             const N = j;
             let val = 0.0;
             val = oneA * Math.pow((100 + r) / 100, N);
-            val = Math.round(val * 100) / 100; // round to 0.2f
+            val = Math.round(val * nf) / nf;
             ans[i][1+j] = val; // fill in table
         }
     }
@@ -234,6 +258,7 @@ function evalFuneralPension(oneA, year, rate) {
 // survivorTable
 //遺屬年金給付 = M * ((1 + r/12)^(12*N) - 1) / (r/12)
 function evalSurvivalPension(oneM, year, rate) {
+    const nf = MOD; // %.1f
     let ans = makeData(year, rate);
     let m = ans.length;
     let n = ans[0].length;
@@ -243,10 +268,10 @@ function evalSurvivalPension(oneM, year, rate) {
         for (let j = 1; j <= n; j++) {
             const r = i;
             const N = j;
-            const r12 = (12 + r) / 12; // = 1 + r/12
+            const r12 = (r) / 1200; // = if r = 3, 1 + 3% / 12
             let val = 0.0;
-            val = oneM * (Math.pow(1 + r12, N * 12) - 1) / r * 12;
-            val = Math.round(val * 100) / 100; // round to 0.2f
+            val = oneM * (Math.pow(1 + r12, N * 12) - 1) / r12;
+            val = Math.round(val * nf) / nf;
             ans[i][1+j] = val;
         }
     }
@@ -316,16 +341,59 @@ function makeRow(rowTag, itemTag, a) {
     let row = document.createElement(rowTag);
     for (let i = 0; i < a.length; i++) {
         let ai = document.createElement(itemTag);
-        ai.innerHTML = a[i];
-        //ai.style.border = "1px solid black";
+        //ai.innerHTML = a[i].toLocaleString();// ok
+        let s = a[i].toLocaleString();
+        ai.innerHTML = s;
         row.appendChild(ai);
     }
     return row;
 }
 
+function applyMom() {
+    const month = document.getElementById("monthlyInsured").value;
+    document.getElementById("funeralPay").value = 5 * month;//1335990;
+    document.getElementById("survivorPay").value = 9606;
+}
+
+// integer n, integer k, return n^k
+function powNKA(n, k) {
+    let x = n, y = k;
+    let ans = 1; // n^0
+    while (y > 0) {
+        if (y & 0x1 == 1) { // y % 2 == 1
+            ans = ans * x;
+        }
+        x = x * x;
+        y /= 2;
+    }
+    return ans;
+}
+
+function enterToClick(keyUpDomID, clickDomID) {
+    const e = document.getElementById(keyUpDomID);
+    if (e) {
+        e.onkeyup = function (e) {
+            if (e.keyCode === 13) {
+                // Enter = 13
+                allClicks.get(clickDomID).apply(e);
+            }
+        }
+    } else {
+        console.log(`Element not found for ${keyUpDomID}`);
+    }
+}
+
+function addListeners() {
+    addClickListeners();
+    enterToClick("funeralPay", "funeralBtn");
+    enterToClick("survivorPay", "survivorBtn");
+}
+
 function main() {
     setupTimer();
-    addClickListeners();
+    addListeners();
+    applyMom();
+    callOnClick("funeralTable");
 }
 
 window.onload = function() {

@@ -3,12 +3,21 @@
   <head>
     <!-- <script src="script/asd.js" charset="utf-8"></script> -->
     <link rel="stylesheet" type="text/css" href="css/index.css">
+    <!-- <script src="js/util.js" charset="utf-8" type="module"></script> -->
+    <!-- <script type="module" src="js/index.js" charset="utf-8"></script> -->
     <script src="js/index.js" charset="utf-8"></script>
     <meta charset="utf-8">
     <title>你好，GitHub</title>
   </head>
   <body>
     <h1>功能撰寫測試中，尚未完整... </h1>
+    <h2><a href="https://www.bli.gov.tw/index.html">勞動部勞工保險局</a></h2>
+    <h2><a href="https://www.bli.gov.tw/0004840.html">死亡給付</a></h2>
+    <h2><a href="https://www.bli.gov.tw/0007865.html">死亡給付 - 請領資格 - 本人死亡給付</a></h2>
+    <img src="./image/bli/logo.svg"/>
+    <!-- <img class="bliLogo"/> -->
+    <!-- <img class="bliLogo2"/> -->
+
     <h1 id="clock"></h1>
     <label>計算年 (N years): 從 1 年到 </label><input type="number" id="year" value="40" min="5"><label>年 (最低5年)</label>
     <br><br>
@@ -19,12 +28,21 @@
     <button id="make3x4">Make Table 3x4</button>
     <button id="makeTable">Make Table</button>
     -->
+    <!-- spec: https://www.bli.gov.tw/0007867.html -->
     <br><br>
-    <button id="funeralTable">本人死亡</button>
-    <label>本人死亡給付 單次</label><input type="number" id="funeralOneA" value="1335990" min="5">
+    <label>死亡之當月（含）起前 6個月之平均月投保薪資 (= M ): </label><input type="number" id="monthlyInsured" value="45000" min="5">
     <br><br>
-    <button id="survivorTable">遺屬年金</button>
-    <label>遺屬年金給付 每月</label><input type="number" id="survivorOneM" value="9606" min="5">
+    <button id="funeralBtn">喪葬津貼</button>
+    <!-- 1335990 -->
+    <label>喪葬津貼給付 單次 (= 5 * M) = </label><input type="number" id="funeralPay" value="1000000">
+    <br><br>
+    <button id="deceaseBtn">本人死亡</button>
+    <!-- 1335990 -->
+    <label>本人死亡給付 單次</label><input type="number" id="deceasePay" value="1000000" min="5">
+    <br><br>
+    <button id="survivorBtn">遺屬年金</button>
+    <!-- 9606 -->
+    <label>遺屬年金給付 每月</label><input type="number" id="survivorPay" value="1000" min="5">
     <br><br>
     <label>花費時間 : </label><label id="spent">0 ms</label>
     <div id="eval"></div>

@@ -11,3 +11,11 @@ table {
 th,td {
     border: 1px solid #888;
 }
+
+/* bli css*/
+.bliLogo {
+    src: "./image/bli/logo.svg";
+}
+.bliLogo2 {
+    src: "./image/bli/logo_bli.svg";
+}
