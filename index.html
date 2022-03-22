@@ -32,17 +32,22 @@
     <br><br>
     <label>死亡之當月（含）起前 6個月之平均月投保薪資 (= M ): </label><input type="number" id="monthlyInsured" value="45000" min="5">
     <br><br>
-    <button id="funeralBtn">喪葬津貼</button>
+    <button id="funeralBtn" disabled>喪葬津貼</button>
     <!-- 1335990 -->
     <label>喪葬津貼給付 單次 (= 5 * M) = </label><input type="number" id="funeralPay" value="1000000">
     <br><br>
     <button id="deceaseBtn">本人死亡</button>
     <!-- 1335990 -->
-    <label>本人死亡給付 單次</label><input type="number" id="deceasePay" value="1000000" min="5">
+    <label>本人死亡給付 單次 (= 30 * M)</label><input type="number" id="deceasePay" value="1000000" min="5">
     <br><br>
     <button id="survivorBtn">遺屬年金</button>
     <!-- 9606 -->
     <label>遺屬年金給付 每月</label><input type="number" id="survivorPay" value="1000" min="5">
+    <br><br>
+    <button id="deceaseMinusSurvivorBtn">(本人死亡 - 遺屬年金) 差值表</button>
+    <br><br>
+    <label>金錢色彩表</label>
+    <div id="colorTable"></div>
     <br><br>
     <label>花費時間 : </label><label id="spent">0 ms</label>
     <div id="eval"></div>

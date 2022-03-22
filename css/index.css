@@ -12,6 +12,37 @@ th,td {
     border: 1px solid #888;
 }
 
+.P5 {
+    background-color: #CCCCFF
+}
+.P4 {
+    background-color: #6495ED
+}
+.P3 {
+    background-color: #ADD8E6
+}
+.P2 {
+    background-color: #50C878
+}
+.P1 {
+    background-color: #FFFFF0
+}
+.N1 {
+    background-color: #FFD700
+}
+.N2 {
+    background-color: #FF9900
+}
+.N3 {
+    background-color: #FFA07A
+}
+.N4 {
+    background-color: #E32636
+}
+.N5 {
+    background-color: #FF0000
+}
+
 /* bli css*/
 .bliLogo {
     src: "./image/bli/logo.svg";

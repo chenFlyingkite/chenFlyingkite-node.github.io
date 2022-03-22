@@ -29,8 +29,9 @@ function callOnClick(domID) {
 //----
 // constants
 const fixedDigit = 1;
-
 const MOD = powNKA(10, fixedDigit);
+const COLOR_LEVEL = [1_500_000, 1_000_000, 500_000, 100_000, 10_000, -10_000, -100_000, -500_000, -1_000_000];
+const COLOR_CLASS = ["P5", "P4", "P3", "P2", "P1", "N1", "N2", "N3", "N4", "N5"];
 
 //-------
 class TicTac {
@@ -145,38 +146,20 @@ function setupTimer() {
 // Define events, id, function
 // id : function
 
-//Deprecated
-// allClicks.set("send", function onSend(e) {
-//     console.log("Hello!");
-//     alert("Hello");
-// });
-
-// allClicks.set("make3x4", function onSend2(e) {
-//     console.log("Hello! send2 " + e.target.value);
-//     makeTable0("eval");
-// });
-
-// allClicks.set("makeTable", function (e) {
-//     const year = parseDom("year");
-//     const rate = parseDom("rateOfReturn");
-//     console.log(`y = ${year}, r = ${rate}`);
-//     makeTable0("eval");
-// });
-
-allClicks.set("funeralBtn", function (e) {
+allClicks.set("deceaseBtn", function (e) {
     const year = parseDom("year");
     const rate = parseDom("rateOfReturn");
-    const pay = parseDom("funeralPay");
-    console.log(`funeralBtn, y = ${year}, r = ${rate}`);
+    const pay = parseDom("deceasePay");
+    console.log(`deceaseBtn, y = ${year}, r = ${rate}`);
     tictac.tic();
-    const table = evalFuneralPension(pay, year, rate);
+    const table = evalDeceasePension(pay, year, rate);
     makeTable("eval", table);
     let ms = tictac.tacL();
     const name = e.target.innerText;
     showSpent(`計算 ${name} ${ms}`);
 });
 
-allClicks.set("survivorTable", function (e) {
+allClicks.set("survivorBtn", function (e) {
     const year = parseDom("year");
     const rate = parseDom("rateOfReturn");
     const pay = parseDom("survivorPay");
@@ -184,6 +167,33 @@ allClicks.set("survivorTable", function (e) {
     tictac.tic();
     const table = evalSurvivalPension(pay, year, rate);
     makeTable("eval", table);
+    let ms = tictac.tacL();
+    const name = e.target.innerText;
+    showSpent(`計算 ${name} ${ms}`);
+});
+
+allClicks.set("deceaseMinusSurvivorBtn", function (e) {
+    const year = parseDom("year");
+    const rate = parseDom("rateOfReturn");
+    const dpay = parseDom("deceasePay");
+    const spay = parseDom("survivorPay");
+    console.log(`decease - survivor, y = ${year}, r = ${rate}`);
+    tictac.tic();
+    // const deceaseTable = evalDeceasePension(dpay, year, rate);
+    // const survivorTable = evalSurvivalPension(spay, year, rate);
+    // eval deceaseTable[1,2:] - survivorTable[1,2:]
+    let ans = makeData(year, rate);
+    let m = rate;
+    let n = year;
+    console.log(`decease - survivor, m = ${m}, n = ${n}`);
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            let val = evalDeceasePay(dpay, i, j) - evalSurvivalPay(spay, i, j);
+            ans[i][1+j] = val;
+        }
+    }
+
+    makeTable("eval", ans, true);
     let ms = tictac.tacL();
     const name = e.target.innerText;
     showSpent(`計算 ${name} ${ms}`);
@@ -203,40 +213,9 @@ function parseDom(domID) {
     }
 }
 
-// https://www.delftstack.com/zh-tw/howto/javascript/create-table-javascript/
-function makeTable0(rootID) {
-    let table = document.createElement('table');
-    let thead = document.createElement('thead');
-    let tbody = document.createElement('tbody');
-
-    let row;
-    row = makeRow("tr", "th", ["h1", "h2", "h3"]);
-    thead.appendChild(row);
-    row = makeRow("tr", "td", ["b1", "b2", "b3"]);
-    tbody.appendChild(row);
-    row = makeRow("tr", "td", ["c1", "c2", "c3"]);
-    tbody.appendChild(row);
-    row = makeRow("tr", "td", ["f1", "f2", "f3"]);
-    tbody.appendChild(row);
-
-    table.appendChild(thead);
-    table.appendChild(tbody);
-
-    // Adding the entire table to the body tag
-    const root = document.getElementById(rootID);
-    var reset = true; // RD
-    if (reset) {
-        while (root.firstChild) {
-            root.firstChild.remove();
-        }
-    }
-    root.appendChild(table);
-}
-
-// funeralTable
+// deceaseTable
 // 本人死亡給付 = A(1+r)^N
-function evalFuneralPension(oneA, year, rate) {
-    const nf = MOD; // %.1f
+function evalDeceasePension(oneA, year, rate) {
     let ans = makeData(year, rate);
     let m = ans.length;
     let n = ans[0].length;
@@ -244,15 +223,20 @@ function evalFuneralPension(oneA, year, rate) {
     n = year;
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
-            const r = i;
-            const N = j;
-            let val = 0.0;
-            val = oneA * Math.pow((100 + r) / 100, N);
-            val = Math.round(val * nf) / nf;
-            ans[i][1+j] = val; // fill in table
+            ans[i][1+j] = evalDeceasePay(oneA, i, j);
         }
     }
     return ans;
+}
+
+function evalDeceasePay(oneA, rateAt, yearAt) {
+    const nf = MOD; // %.1f
+    const r = rateAt;
+    const N = yearAt;
+    let val = 0.0;
+    val = oneA * Math.pow((100 + r) / 100, N);
+    val = Math.round(val * nf) / nf;
+    return val;
 }
 
 // survivorTable
@@ -266,13 +250,29 @@ function evalSurvivalPension(oneM, year, rate) {
     n = year;
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
-            const r = i;
-            const N = j;
-            const r12 = (r) / 1200; // = if r = 3, 1 + 3% / 12
-            let val = 0.0;
-            val = oneM * (Math.pow(1 + r12, N * 12) - 1) / r12;
-            val = Math.round(val * nf) / nf;
-            ans[i][1+j] = val;
+            ans[i][1+j] = evalSurvivalPay(oneM, i, j);
+        }
+    }
+    return ans;
+}
+
+function evalSurvivalPay(oneM, rateAt, yearAt) {
+    const nf = MOD; // %.1f
+    const r = rateAt;
+    const N = yearAt;
+    const r12 = (r) / 1200; // = if r = 3, 1 + 3% / 12
+    let val = 0.0;
+    val = oneM * (Math.pow(1 + r12, N * 12) - 1) / r12;
+    val = Math.round(val * nf) / nf;
+    return val;
+}
+
+function matrixMxN(m, n) {
+    let ans = [];
+    for (let i = 0; i < m; i++) {
+        ans[i] = [];
+        for (let j = 0; j < n; j++) {
+            ans[i][j] = '';
         }
     }
     return ans;
@@ -285,12 +285,13 @@ function makeData(year, rate) {
     //let ans = Array.from(Array(rate + 1), ()=>(new Array(year + 2)));// new Array(rate + 1);//<Array<string>>;
 
     // make ans[rate+1][year+2]
-    const m = rate + 1;
-    const n = year + 2;
-    let ans = [];
-    for (let i = 0; i < m; i++) {
-        ans[i] = [];
-    }
+    let ans = matrixMxN(rate + 1, year + 2);
+    // const m = rate + 1;
+    // const n = year + 2;
+    // let ans = [];
+    // for (let i = 0; i < m; i++) {
+    //     ans[i] = [];
+    // }
     // fill in first row
     ans[0][0] = "年利率 = r";
     ans[0][1] = "1 + r";
@@ -305,7 +306,7 @@ function makeData(year, rate) {
     return ans;
 }
 
-function makeTable(rootID, data) {
+function makeTable(rootID, data, color) {
     let table = document.createElement('table');
     let thead = document.createElement('thead');
     let tbody = document.createElement('tbody');
@@ -313,11 +314,11 @@ function makeTable(rootID, data) {
     let row;
     let n = data.length;
     if (n > 0) {
-        row = makeRow("tr", "th", data[0]);
+        row = makeRow("tr", "th", data[0], color);
         thead.appendChild(row);
     }
     for (let i = 1; i < n; i++) {
-        row = makeRow("tr", "td", data[i]);
+        row = makeRow("tr", "td", data[i], color);
         tbody.appendChild(row);
     }
     table.appendChild(thead);
@@ -326,17 +327,34 @@ function makeTable(rootID, data) {
 
     // Adding the entire table to the body tag
     const root = document.getElementById(rootID);
-    var reset = true; // RD
-    if (reset) {
-        while (root.firstChild) {
-            root.firstChild.remove();
-        }
-    }
+    removeChildDom(rootID);
     root.appendChild(table);
 }
 
+// Adding the entire table to the body tag
+function removeChildDom(rootID) {
+    const it = document.getElementById(rootID);
+    it.innerHTML = "";
+    // while (it.firstChild) {
+    //     it.firstChild.remove();
+    // }
+    return it;
+}
+
+function getColorClass(v) {
+    const level = COLOR_LEVEL;
+    const clazz = COLOR_CLASS;
+    let n = clazz.length;
+    for (let i = 0; i < n; i++) {
+        if (v >= level[i]) {
+            return clazz[i];
+        }
+    }
+    return clazz[n-1];
+}
+
 // (tr, th) or (tr, td) on content as a
-function makeRow(rowTag, itemTag, a) {
+function makeRow(rowTag, itemTag, a, color) {
     // Creating and adding data to first row of the table
     let row = document.createElement(rowTag);
     for (let i = 0; i < a.length; i++) {
@@ -344,15 +362,24 @@ function makeRow(rowTag, itemTag, a) {
         //ai.innerHTML = a[i].toLocaleString();// ok
         let s = a[i].toLocaleString();
         ai.innerHTML = s;
+        if (color) {
+            if (typeof a[i] === 'number') {
+                let cls = getColorClass(a[i]);
+                ai.classList.add(cls);
+            }
+        }
         row.appendChild(ai);
     }
     return row;
 }
 
 function applyMom() {
-    const month = document.getElementById("monthlyInsured").value;
-    document.getElementById("funeralPay").value = 5 * month;//1335990;
-    document.getElementById("survivorPay").value = 9606;
+    const monthlyPay = 9606; // 遺屬年金給付 每月
+    const sixMonthInsured = 44533; // 6個月之平均月投保薪資
+    document.getElementById("monthlyInsured").value = sixMonthInsured;
+    document.getElementById("funeralPay").value = 5 * sixMonthInsured; // 222665;
+    document.getElementById("deceasePay").value = 30 * sixMonthInsured; //1335990;
+    document.getElementById("survivorPay").value = monthlyPay;
 }
 
 // integer n, integer k, return n^k
@@ -383,6 +410,21 @@ function enterToClick(keyUpDomID, clickDomID) {
     }
 }
 
+function makeColorTable() {
+    const data = COLOR_LEVEL;
+    const rootID = "colorTable";
+    //makeTable("colorTable", table, true);
+    let table = document.createElement('table');
+    let thead = document.createElement('thead');
+    let row = makeRow("tr", "th", data, true);
+    thead.appendChild(row);
+    table.appendChild(thead);
+    const root = document.getElementById(rootID);
+    removeChildDom(rootID);
+    root.appendChild(table);
+    //makeRow("tr", "th", table, true);
+}
+
 function addListeners() {
     addClickListeners();
     enterToClick("funeralPay", "funeralBtn");
@@ -392,6 +434,7 @@ function addListeners() {
 function main() {
     setupTimer();
     addListeners();
+    makeColorTable();
     applyMom();
     callOnClick("funeralTable");
 }
