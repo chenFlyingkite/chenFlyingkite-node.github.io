@@ -9,9 +9,10 @@ function addClickListeners() {
         const e = document.getElementById(key);
         //console.log(`${e}, ${key} -> ${value}`);
         if (e) {
-            e.addEventListener("click", value);
+            //e.addEventListener("click", value); // failed for call onclick...?
+            e.onclick = value;
         } else {
-            console.error(`Cannot find dom : key = ${key}, v = ${value}`);
+            console.error(`Dom not found : id = ${key}, onclick = ${value}`);
         }
     });
 }
@@ -24,7 +25,6 @@ const COLOR_LEVEL = [1_500_000, 1_000_000, 500_000, 100_000, 10_000, -10_000, -1
 const COLOR_CLASS = ["P5", "P4", "P3", "P2", "P1", "N1", "N2", "N3", "N4", "N5"];
 
 const tictac = new TicTac();
-
 
 //---
 
@@ -51,9 +51,9 @@ function setupTimer() {
 // id : function
 
 allClicks.set("deceaseBtn", function (e) {
-    const year = parseDom("year");
-    const rate = parseDom("rateOfReturn");
-    const pay = parseDom("deceasePay");
+    const year = domValue("year");
+    const rate = domValue("rateOfReturn");
+    const pay = domValue("deceasePay");
     console.log(`deceaseBtn, y = ${year}, r = ${rate}`);
     tictac.tic();
     const table = evalDeceasePension(pay, year, rate);
@@ -64,9 +64,9 @@ allClicks.set("deceaseBtn", function (e) {
 });
 
 allClicks.set("survivorBtn", function (e) {
-    const year = parseDom("year");
-    const rate = parseDom("rateOfReturn");
-    const pay = parseDom("survivorPay");
+    const year = domValue("year");
+    const rate = domValue("rateOfReturn");
+    const pay = domValue("survivorPay");
     console.log(`survivorPay, y = ${year}, r = ${rate}`);
     tictac.tic();
     const table = evalSurvivalPension(pay, year, rate);
@@ -77,10 +77,10 @@ allClicks.set("survivorBtn", function (e) {
 });
 
 allClicks.set("deceaseMinusSurvivorBtn", function (e) {
-    const year = parseDom("year");
-    const rate = parseDom("rateOfReturn");
-    const dpay = parseDom("deceasePay");
-    const spay = parseDom("survivorPay");
+    const year = domValue("year");
+    const rate = domValue("rateOfReturn");
+    const dpay = domValue("deceasePay");
+    const spay = domValue("survivorPay");
     console.log(`decease - survivor, y = ${year}, r = ${rate}`);
     tictac.tic();
     // const deceaseTable = evalDeceasePension(dpay, year, rate);
@@ -107,16 +107,6 @@ allClicks.set("deceaseMinusSurvivorBtn", function (e) {
 
 function showSpent(ms) {
     document.getElementById("spent").innerText = `${ms} ms`;
-}
-
-function parseDom(domID) {
-    const e = document.getElementById(domID);
-    if (e) {
-        return e.value;
-        //return parseInt(e.value, 10);
-    } else {
-        return 0;
-    }
 }
 
 // deceaseTable
@@ -261,39 +251,20 @@ function makeRow(rowTag, itemTag, a, color) {
 function applyMom() {
     const monthlyPay = 9606; // 遺屬年金給付 每月
     const sixMonthInsured = 44533; // 6個月之平均月投保薪資
+    // funeral = 222665;
+    // decease = 1335990;
+    updatePay(monthlyPay, sixMonthInsured);
+}
+
+// monthlyPay = 遺屬年金給付 每月
+// sixMonthInsured = 6個月之平均月投保薪資
+function updatePay(monthlyPay, sixMonthInsured) {
     document.getElementById("monthlyInsured").value = sixMonthInsured;
-    document.getElementById("funeralPay").value = 5 * sixMonthInsured; // 222665;
-    document.getElementById("deceasePay").value = 30 * sixMonthInsured; //1335990;
+    document.getElementById("funeralPay").value = 5 * sixMonthInsured;
+    document.getElementById("deceasePay").value = 30 * sixMonthInsured;
     document.getElementById("survivorPay").value = monthlyPay;
 }
 
-// integer n, integer k, return n^k
-// function powNKA(n, k) {
-//     let x = n, y = k;
-//     let ans = 1; // n^0
-//     while (y > 0) {
-//         if (y & 0x1 == 1) { // y % 2 == 1
-//             ans = ans * x;
-//         }
-//         x = x * x;
-//         y /= 2;
-//     }
-//     return ans;
-// }
-
-function enterToClick(keyUpDomID, clickDomID) {
-    const e = document.getElementById(keyUpDomID);
-    if (e) {
-        e.onkeyup = function (e) {
-            if (e.keyCode === 13) {
-                // Enter = 13
-                allClicks.get(clickDomID).apply(e);
-            }
-        }
-    } else {
-        console.log(`Element not found for ${keyUpDomID}`);
-    }
-}
 
 function makeColorTable() {
     const data = COLOR_LEVEL;
@@ -314,6 +285,12 @@ function addListeners() {
     addClickListeners();
     enterToClick("funeralPay", "funeralBtn");
     enterToClick("survivorPay", "survivorBtn");
+
+    doWhenEnter("monthlyInsured", function (e) {
+        const mon6 = domValue("survivorPay");
+        const mPay = domValue("monthlyInsured");
+        updatePay(mon6, mPay);
+    });
 }
 
 function main() {
@@ -321,7 +298,7 @@ function main() {
     addListeners();
     makeColorTable();
     applyMom();
-    callOnClick("deceaseMinusSurvivorBtn"); // this failed since onclick = null?
+    //callOnClick("deceaseMinusSurvivorBtn");
 }
 
 window.onload = function() {

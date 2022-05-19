@@ -9,6 +9,7 @@ class TicTac {
     constructor() {
     }
 
+    // return now in ms, -1 if invalid
     tic() {
         if (!this.enable) {
             return -1;
@@ -19,6 +20,8 @@ class TicTac {
         }
     }
 
+    // omit printing console log message
+    // only return elapsed ms, -1 if invalid
     tacL() {
         if (!this.enable) {
             return -1;
@@ -33,6 +36,7 @@ class TicTac {
         }
     }
 
+    // print console log message and return elapsed ms, -1 if invalid
     tac(msg) {
         if (!this.enable) {
             return -1;
