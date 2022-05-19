@@ -1,4 +1,4 @@
-//import TicTac from "js/TicTac";
+//import {TicTac} from "TicTac.js"; // how to import other js file...?
 // import { powNK } from "./util";
 
 //-- Base implementation
@@ -7,7 +7,7 @@ function addClickListeners() {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach
     allClicks.forEach(function(value, key, map) {
         const e = document.getElementById(key);
-        //console.log(`${key[0]} -> ${value}`);
+        //console.log(`${e}, ${key} -> ${value}`);
         if (e) {
             e.addEventListener("click", value);
         } else {
@@ -16,111 +16,15 @@ function addClickListeners() {
     });
 }
 
-function callOnClick(domID) {
-    let e = document.getElementById(domID);
-    if (e) {
-        console.log(`id = ${domID}, e = ${e}, ${e.onclick}, ${e.onkeyup}`);
-        if (typeof e.onclick === "function") {
-            e.onclick.apply(e);
-        }
-    }
-}
-
 //----
 // constants
 const fixedDigit = 1;
-const MOD = powNKA(10, fixedDigit);
+const MOD = powNK(10, fixedDigit);
 const COLOR_LEVEL = [1_500_000, 1_000_000, 500_000, 100_000, 10_000, -10_000, -100_000, -500_000, -1_000_000];
 const COLOR_CLASS = ["P5", "P4", "P3", "P2", "P1", "N1", "N2", "N3", "N4", "N5"];
 
-//-------
-class TicTac {
-    constructor() {
-        // time stack
-        this.tictac = [];
-        this.tag = "TicTac";
-        this.log = true;
-        this.enable = true;
-    }
-
-    tic() {
-        if (!this.enable) {
-            return -1;
-        } else {
-            const tic = this.now();
-            this.tictac.push(tic);
-            return tic;
-        }
-    }
-
-    tacL() {
-        if (!this.enable) {
-            return -1;
-        } else {
-            const tac = this.now();
-            if (this.tictac.length < 1) {
-                return -1; // underflow
-            } else {
-                const tic = this.tictac.pop();
-                return tac - tic;
-            }
-        }
-    }
-
-    // get tictac() {
-    //     return this.tictac;
-    // }
-
-    tac(msg) {
-        if (!this.enable) {
-            return -1;
-        } else {
-            const tac = this.now();
-            if (this.tictac.empty()) {
-                this.logError(tac, msg);
-                return -1;
-            } else {
-                const tic = this.tictac.pop();
-                sb = "";
-                for (let i = 0; i < this.tictac.length; i++) {
-                    sb += " ";
-                }
-                sb += `[${tac-tic}] : ${msg}`;
-                this.logTac(sb.toString());
-                return tac - tic;
-            }
-        }
-    }
-
-    reset() {
-        this.tictac.clear();
-    }
-
-    logError(tac, msg) {
-        console.log(`X_X Omitted. tic = N/A, tac = ${getTime(tac)} : ${msg}`);
-    }
-
-    logTac(msg) {
-        if (this.log) {
-            console.log(msg);
-        }
-    }
-
-    //static
-    getTime(timeMS) {
-        return new Date(timeMS).toISOString();
-    }
-
-    toString() {
-        return `tictac.size() = ${this.tictac.length()}`;
-    }
-
-    //static
-    now() {
-        return new Date().getTime();// .currentTimeMillis;
-    }
-}
 const tictac = new TicTac();
+
 
 //---
 
@@ -188,7 +92,9 @@ allClicks.set("deceaseMinusSurvivorBtn", function (e) {
     console.log(`decease - survivor, m = ${m}, n = ${n}`);
     for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
-            let val = evalDeceasePay(dpay, i, j) - evalSurvivalPay(spay, i, j);
+            let dec = evalDeceasePay(dpay, i, j);
+            let sur = evalSurvivalPay(spay, i, j);
+            let val = dec - sur;
             ans[i][1+j] = val;
         }
     }
@@ -242,7 +148,6 @@ function evalDeceasePay(oneA, rateAt, yearAt) {
 // survivorTable
 //遺屬年金給付 = M * ((1 + r/12)^(12*N) - 1) / (r/12)
 function evalSurvivalPension(oneM, year, rate) {
-    const nf = MOD; // %.1f
     let ans = makeData(year, rate);
     let m = ans.length;
     let n = ans[0].length;
@@ -267,16 +172,6 @@ function evalSurvivalPay(oneM, rateAt, yearAt) {
     return val;
 }
 
-function matrixMxN(m, n) {
-    let ans = [];
-    for (let i = 0; i < m; i++) {
-        ans[i] = [];
-        for (let j = 0; j < n; j++) {
-            ans[i][j] = '';
-        }
-    }
-    return ans;
-}
 
 // base table
 function makeData(year, rate) {
@@ -331,16 +226,6 @@ function makeTable(rootID, data, color) {
     root.appendChild(table);
 }
 
-// Adding the entire table to the body tag
-function removeChildDom(rootID) {
-    const it = document.getElementById(rootID);
-    it.innerHTML = "";
-    // while (it.firstChild) {
-    //     it.firstChild.remove();
-    // }
-    return it;
-}
-
 function getColorClass(v) {
     const level = COLOR_LEVEL;
     const clazz = COLOR_CLASS;
@@ -383,18 +268,18 @@ function applyMom() {
 }
 
 // integer n, integer k, return n^k
-function powNKA(n, k) {
-    let x = n, y = k;
-    let ans = 1; // n^0
-    while (y > 0) {
-        if (y & 0x1 == 1) { // y % 2 == 1
-            ans = ans * x;
-        }
-        x = x * x;
-        y /= 2;
-    }
-    return ans;
-}
+// function powNKA(n, k) {
+//     let x = n, y = k;
+//     let ans = 1; // n^0
+//     while (y > 0) {
+//         if (y & 0x1 == 1) { // y % 2 == 1
+//             ans = ans * x;
+//         }
+//         x = x * x;
+//         y /= 2;
+//     }
+//     return ans;
+// }
 
 function enterToClick(keyUpDomID, clickDomID) {
     const e = document.getElementById(keyUpDomID);
@@ -436,7 +321,7 @@ function main() {
     addListeners();
     makeColorTable();
     applyMom();
-    callOnClick("funeralTable");
+    callOnClick("deceaseMinusSurvivorBtn"); // this failed since onclick = null?
 }
 
 window.onload = function() {

@@ -1,27 +1,29 @@
-export default class TicTac {
+//export class TicTac {
+class TicTac {
+    // time stack
+    tictac = [];
+    enable = true;
+    tag = "TicTac";
+    log = true;
+
     constructor() {
-        // time stack
-        this.tictac = [];
-        this.tag = "TicTac";
-        this.log = true;
-        this.enable = true;
     }
 
     tic() {
-        if (!enable) {
+        if (!this.enable) {
             return -1;
         } else {
-            const tic = now();
+            const tic = this.now();
             this.tictac.push(tic);
             return tic;
         }
     }
 
     tacL() {
-        if (!enable) {
+        if (!this.enable) {
             return -1;
         } else {
-            const tac = now();
+            const tac = this.now();
             if (this.tictac.length < 1) {
                 return -1; // underflow
             } else {
@@ -31,15 +33,11 @@ export default class TicTac {
         }
     }
 
-    get tictac() {
-        return this.tictac;
-    }
-
     tac(msg) {
-        if (!enable) {
+        if (!this.enable) {
             return -1;
         } else {
-            const tac = now();
+            const tac = this.now();
             if (this.tictac.empty()) {
                 this.logError(tac, msg);
                 return -1;
@@ -61,7 +59,7 @@ export default class TicTac {
     }
 
     logError(tac, msg) {
-        console.log(`X_X X_X Omitted. tic = N/A, tac = ${getTime(tac)} : ${msg}`);
+        console.log(`X_X Omitted. tic = N/A, tac = ${getTime(tac)} : ${msg}`);
     }
 
     logTac(msg) {
@@ -78,8 +76,8 @@ export default class TicTac {
         return `tictac.size() = ${this.tictac.length()}`;
     }
 
-    static now() {
-        return System.currentTimeMillis();
+    now() {
+        return new Date().getTime();
     }
 }
 
@@ -171,4 +169,88 @@ export default class TicTac {
 
 // static {
 //     formatISO8601 = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+// }
+
+//------- Valid
+// class TicTac3 {
+//     constructor() {
+//         // time stack
+//         this.tictac = [];
+//         this.tag = "TicTac";
+//         this.log = true;
+//         this.enable = true;
+//     }
+
+//     tic() {
+//         if (!this.enable) {
+//             return -1;
+//         } else {
+//             const tic = this.now();
+//             this.tictac.push(tic);
+//             return tic;
+//         }
+//     }
+
+//     tacL() {
+//         if (!this.enable) {
+//             return -1;
+//         } else {
+//             const tac = this.now();
+//             if (this.tictac.length < 1) {
+//                 return -1; // underflow
+//             } else {
+//                 const tic = this.tictac.pop();
+//                 return tac - tic;
+//             }
+//         }
+//     }
+
+//     tac(msg) {
+//         if (!this.enable) {
+//             return -1;
+//         } else {
+//             const tac = this.now();
+//             if (this.tictac.empty()) {
+//                 this.logError(tac, msg);
+//                 return -1;
+//             } else {
+//                 const tic = this.tictac.pop();
+//                 sb = "";
+//                 for (let i = 0; i < this.tictac.length; i++) {
+//                     sb += " ";
+//                 }
+//                 sb += `[${tac-tic}] : ${msg}`;
+//                 this.logTac(sb.toString());
+//                 return tac - tic;
+//             }
+//         }
+//     }
+
+//     reset() {
+//         this.tictac.clear();
+//     }
+
+//     logError(tac, msg) {
+//         console.log(`X_X Omitted. tic = N/A, tac = ${getTime(tac)} : ${msg}`);
+//     }
+
+//     logTac(msg) {
+//         if (this.log) {
+//             console.log(msg);
+//         }
+//     }
+
+//     //static
+//     getTime(timeMS) {
+//         return new Date(timeMS).toISOString();
+//     }
+
+//     toString() {
+//         return `tictac.size() = ${this.tictac.length()}`;
+//     }
+
+//     //static
+//     now() {
+//         return new Date().getTime();// .currentTimeMillis;
+//     }
 // }
