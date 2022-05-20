@@ -1,21 +1,6 @@
 //import {TicTac} from "TicTac.js"; // how to import other js file...?
 // import { powNK } from "./util";
 
-//-- Base implementation
-const allClicks = new Map();
-function addClickListeners() {
-    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map/forEach
-    allClicks.forEach(function(value, key, map) {
-        const e = document.getElementById(key);
-        //console.log(`${e}, ${key} -> ${value}`);
-        if (e) {
-            //e.addEventListener("click", value); // failed for call onclick...?
-            e.onclick = value;
-        } else {
-            console.error(`Dom not found : id = ${key}, onclick = ${value}`);
-        }
-    });
-}
 
 //----
 // constants
@@ -27,83 +12,73 @@ const COLOR_CLASS = ["P5", "P4", "P3", "P2", "P1", "N1", "N2", "N3", "N4", "N5"]
 const tictac = new TicTac();
 
 //---
-
-// Define functions
-function clock(domID) {
-    // Get today's date and time
-    let d = new Date();
-    //var now = d.getTime(); // long value
-    //var now = d.toISOString(); // yyyy-mm-ddThh:MM:ss.SSSZ like 2022-03-14T10:26:34
-    var now = d.toLocaleString();// Date = 2022/3/15, Time = 上午10:47:46, Locale = Date + Time
-    document.getElementById(domID).innerHTML = "現在時間: " + now;
-}
-
-// Run methods and main
-function setupTimer() {
-    const run = function () {
-        clock("clock");
-    }
-    run();
-    setInterval(run, 1000);
-}
-
 // Define events, id, function
 // id : function
+function setupClickListeners() {
+    setOnClickListener("deceaseBtn", function (e) {
+        const year = domValueInt("year");
+        const rate = domValueInt("rateOfReturn");
+        const pay = domValueInt("deceasePay");
+        console.log(`deceaseBtn, y = ${year}, r = ${rate}`);
+        tictac.tic();
+        const table = evalDeceasePension(pay, year, rate);
+        makeTable("eval", table);
+        let ms = tictac.tacL();
+        const name = e.target.innerText;
+        showSpent(`計算 ${name} ${ms}`);
+    });
 
-allClicks.set("deceaseBtn", function (e) {
-    const year = domValue("year");
-    const rate = domValue("rateOfReturn");
-    const pay = domValue("deceasePay");
-    console.log(`deceaseBtn, y = ${year}, r = ${rate}`);
-    tictac.tic();
-    const table = evalDeceasePension(pay, year, rate);
-    makeTable("eval", table);
-    let ms = tictac.tacL();
-    const name = e.target.innerText;
-    showSpent(`計算 ${name} ${ms}`);
-});
+    setOnClickListener("survivorBtn", function (e) {
+        const year = domValueInt("year");
+        const rate = domValueInt("rateOfReturn");
+        const pay = domValueInt("survivorPay");
+        console.log(`survivorPay, y = ${year}, r = ${rate}`);
+        tictac.tic();
+        const table = evalSurvivalPension(pay, year, rate);
+        makeTable("eval", table);
+        let ms = tictac.tacL();
+        const name = e.target.innerText;
+        showSpent(`計算 ${name} ${ms}`);
+    });
 
-allClicks.set("survivorBtn", function (e) {
-    const year = domValue("year");
-    const rate = domValue("rateOfReturn");
-    const pay = domValue("survivorPay");
-    console.log(`survivorPay, y = ${year}, r = ${rate}`);
-    tictac.tic();
-    const table = evalSurvivalPension(pay, year, rate);
-    makeTable("eval", table);
-    let ms = tictac.tacL();
-    const name = e.target.innerText;
-    showSpent(`計算 ${name} ${ms}`);
-});
-
-allClicks.set("deceaseMinusSurvivorBtn", function (e) {
-    const year = domValue("year");
-    const rate = domValue("rateOfReturn");
-    const dpay = domValue("deceasePay");
-    const spay = domValue("survivorPay");
-    console.log(`decease - survivor, y = ${year}, r = ${rate}`);
-    tictac.tic();
-    // const deceaseTable = evalDeceasePension(dpay, year, rate);
-    // const survivorTable = evalSurvivalPension(spay, year, rate);
-    // eval deceaseTable[1,2:] - survivorTable[1,2:]
-    let ans = makeData(year, rate);
-    let m = rate;
-    let n = year;
-    console.log(`decease - survivor, m = ${m}, n = ${n}`);
-    for (let i = 1; i <= m; i++) {
-        for (let j = 1; j <= n; j++) {
-            let dec = evalDeceasePay(dpay, i, j);
-            let sur = evalSurvivalPay(spay, i, j);
-            let val = dec - sur;
-            ans[i][1+j] = val;
+    setOnClickListener("deceaseMinusSurvivorBtn", function (e) {
+        const year = domValueInt("year");
+        const rate = domValueInt("rateOfReturn");
+        const dpay = domValueInt("deceasePay");
+        const spay = domValueInt("survivorPay");
+        console.log(`decease - survivor, y = ${year}, r = ${rate}`);
+        tictac.tic();
+        // const deceaseTable = evalDeceasePension(dpay, year, rate);
+        // const survivorTable = evalSurvivalPension(spay, year, rate);
+        // eval deceaseTable[1,2:] - survivorTable[1,2:]
+        let ans = makeData(year, rate);
+        let m = rate;
+        let n = year;
+        console.log(`decease - survivor, m = ${m}, n = ${n}`);
+        for (let i = 1; i <= m; i++) {
+            for (let j = 1; j <= n; j++) {
+                let dec = evalDeceasePay(dpay, i, j);
+                let sur = evalSurvivalPay(spay, i, j);
+                let val = dec - sur;
+                ans[i][1+j] = val;
+            }
         }
-    }
 
-    makeTable("eval", ans, true);
-    let ms = tictac.tacL();
-    const name = e.target.innerText;
-    showSpent(`計算 ${name} ${ms}`);
-});
+        makeTable("eval", ans, true);
+        let ms = tictac.tacL();
+        const name = e.target.innerText;
+        showSpent(`計算 ${name} ${ms}`);
+    });
+
+    enterToClick("funeralPay", "funeralBtn");
+    enterToClick("survivorPay", "survivorBtn");
+
+    enterToRun("monthlyInsured", function (e) {
+        const mon6 = domValueInt("survivorPay");
+        const mPay = domValueInt("monthlyInsured");
+        updatePay(mon6, mPay);
+    });
+}
 
 function showSpent(ms) {
     document.getElementById("spent").innerText = `${ms} ms`;
@@ -169,14 +144,7 @@ function makeData(year, rate) {
     // mxn array = let arr = Array.from(Array(m), () => new Array(n)); // failed
     //let ans = Array.from(Array(rate + 1), ()=>(new Array(year + 2)));// new Array(rate + 1);//<Array<string>>;
 
-    // make ans[rate+1][year+2]
     let ans = matrixMxN(rate + 1, year + 2);
-    // const m = rate + 1;
-    // const n = year + 2;
-    // let ans = [];
-    // for (let i = 0; i < m; i++) {
-    //     ans[i] = [];
-    // }
     // fill in first row
     ans[0][0] = "年利率 = r";
     ans[0][1] = "1 + r";
@@ -199,11 +167,12 @@ function makeTable(rootID, data, color) {
     let row;
     let n = data.length;
     if (n > 0) {
-        row = makeRow("tr", "th", data[0], color);
+        row = makeRow("tr", "th", data[0]);
         thead.appendChild(row);
     }
     for (let i = 1; i < n; i++) {
-        row = makeRow("tr", "td", data[i], color);
+        let m = data[i].length;
+        row = makeRow("tr", "td", data[i], color, 2, m);
         tbody.appendChild(row);
     }
     table.appendChild(thead);
@@ -229,7 +198,8 @@ function getColorClass(v) {
 }
 
 // (tr, th) or (tr, td) on content as a
-function makeRow(rowTag, itemTag, a, color) {
+// fill in color table from a[coloFrom:colorEnd]
+function makeRow(rowTag, itemTag, a, color, colorFrom = 0, colorEnd = a.length) {
     // Creating and adding data to first row of the table
     let row = document.createElement(rowTag);
     for (let i = 0; i < a.length; i++) {
@@ -237,7 +207,8 @@ function makeRow(rowTag, itemTag, a, color) {
         //ai.innerHTML = a[i].toLocaleString();// ok
         let s = a[i].toLocaleString();
         ai.innerHTML = s;
-        if (color) {
+        const inbound = colorFrom <= i && i < colorEnd;
+        if (color && inbound) {
             if (typeof a[i] === 'number') {
                 let cls = getColorClass(a[i]);
                 ai.classList.add(cls);
@@ -265,11 +236,9 @@ function updatePay(monthlyPay, sixMonthInsured) {
     document.getElementById("survivorPay").value = monthlyPay;
 }
 
-
 function makeColorTable() {
     const data = COLOR_LEVEL;
     const rootID = "colorTable";
-    //makeTable("colorTable", table, true);
     let table = document.createElement('table');
     let thead = document.createElement('thead');
     let row = makeRow("tr", "th", data, true);
@@ -278,27 +247,14 @@ function makeColorTable() {
     const root = document.getElementById(rootID);
     removeChildDom(rootID);
     root.appendChild(table);
-    //makeRow("tr", "th", table, true);
-}
-
-function addListeners() {
-    addClickListeners();
-    enterToClick("funeralPay", "funeralBtn");
-    enterToClick("survivorPay", "survivorBtn");
-
-    doWhenEnter("monthlyInsured", function (e) {
-        const mon6 = domValue("survivorPay");
-        const mPay = domValue("monthlyInsured");
-        updatePay(mon6, mPay);
-    });
 }
 
 function main() {
-    setupTimer();
-    addListeners();
+    setupClock("clock");
+    setupClickListeners();
     makeColorTable();
     applyMom();
-    //callOnClick("deceaseMinusSurvivorBtn");
+    callOnClick("deceaseMinusSurvivorBtn");
 }
 
 window.onload = function() {
