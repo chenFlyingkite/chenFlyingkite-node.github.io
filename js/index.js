@@ -70,6 +70,10 @@ function setupClickListeners() {
         showSpent(`計算 ${name} ${ms}`);
     });
 
+    document.getElementById("rateOfReturn").onchange = function(e) {
+        updateRate();
+    }
+
     enterToClick("funeralPay", "funeralBtn");
     enterToClick("survivorPay", "survivorBtn");
 
@@ -82,6 +86,13 @@ function setupClickListeners() {
 
 function showSpent(ms) {
     document.getElementById("spent").innerText = `${ms} ms`;
+}
+
+function updateRate() {
+    const it = document.getElementById("rateOfReturn");
+    const r = domValueInt("rateOfReturn");
+    const val = (100 + r) / 100;
+    document.getElementById("sampleR").innerHTML = val;
 }
 
 // deceaseTable
@@ -146,8 +157,8 @@ function makeData(year, rate) {
 
     let ans = matrixMxN(rate + 1, year + 2);
     // fill in first row
-    ans[0][0] = "年利率 = r";
-    ans[0][1] = "1 + r";
+    ans[0][0] = "s";
+    ans[0][1] = "年利率 = r";
     for (let i = 1; i <= year; i++) {
         ans[0][i+1] = i;
     }
@@ -253,6 +264,7 @@ function main() {
     setupClock("clock");
     setupClickListeners();
     makeColorTable();
+    updateRate();
     applyMom();
     callOnClick("deceaseMinusSurvivorBtn");
 }

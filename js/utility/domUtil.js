@@ -11,12 +11,23 @@ function removeChildDom(rootID) {
     return it;
 }
 
+//return e.value; // returns text of e, not int
+
 // return parseInt(e.value, 10)
 function domValueInt(domID, fallback = 0) {
     const e = document.getElementById(domID);
     if (e) {
-        //return e.value; // it returns text
         return parseInt(e.value, 10);
+    } else {
+        return fallback;
+    }
+}
+
+// return parseInt(e.value, 10)
+function domInnerTextInt(domID, fallback = 0) {
+    const e = document.getElementById(domID);
+    if (e) {
+        return parseInt(e.innerText, 10);
     } else {
         return fallback;
     }
