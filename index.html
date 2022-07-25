@@ -46,6 +46,10 @@
     <button id="survivorBtn">計算 遺屬年金 表格</button>
     <label>遺屬年金給付 (M = )每月</label><input type="number" id="survivorPay" value="1000" min="5" class="typed">
 
+    Click the button then choose a file to see its contents displayed below.
+    <button onclick="openFile(dispFile)">Open a file</button>
+    <pre id="contents"></pre>
+
     <br><br>
     <button id="deceaseMinusSurvivorBtn">(本人死亡 - 遺屬年金) 差值表</button>
     <br><br>
@@ -54,5 +58,6 @@
     <br><br>
     <label>花費時間 : </label><label id="spent">0 ms</label>
     <div id="eval"></div>
+
   </body>
 </html>

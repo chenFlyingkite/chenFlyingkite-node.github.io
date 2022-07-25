@@ -3,8 +3,6 @@
 function makeTable1(a) {
     const rowTag = "tr";
     const itemTag = "td";
-    // console.log(`makeTable1`);
-    // console.table(a);
     // Creating and adding data to first row of the table
     let row = document.createElement(rowTag);
     for (let i = 0; i < a.length; i++) {
@@ -26,33 +24,6 @@ function makeTable1(a) {
     }
     return row;
 }
-
-// function makeRow(rowTag, itemTag, a) {
-//     // Creating and adding data to first row of the table
-//     let row = document.createElement(rowTag);
-//     console.log(`${rowTag}, ${itemTag}`);
-//     console.table(a);
-//     let each = document.createElement(itemTag);
-
-//     // let di = a[i];
-//     let di = a;
-//     console.log(`di = `);
-//     console.table(di);
-//     let txt = create("label");
-//     let img = create("img");
-//     txt.innerHTML = di[0];
-//     img.src = di[1];
-//     img.width = 500;
-//     //img.width = 500;
-
-//     each.appendChild(txt);
-//     each.appendChild(create("br"));
-//     each.appendChild(img);
-//     each.appendChild(create("br"));
-
-//     row.appendChild(each);
-//     return row;
-// }
 
 function create(tag) {
     return document.createElement(tag);

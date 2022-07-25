@@ -267,7 +267,91 @@ function main() {
     updateRate();
     applyMom();
     callOnClick("deceaseMinusSurvivorBtn");
+    readm();
 }
+//--
+
+// this work for click to select file
+function dispFile(contents) {
+    document.getElementById('contents').innerHTML=contents
+  }
+  function clickElem(elem) {
+      // Thx user1601638 on Stack Overflow (6/6/2018 - https://stackoverflow.com/questions/13405129/javascript-create-and-save-file )
+      var eventMouse = document.createEvent("MouseEvents")
+      eventMouse.initMouseEvent("click", true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+      elem.dispatchEvent(eventMouse)
+  }
+  function openFile(func) {
+      readFile = function(e) {
+          var file = e.target.files[0];
+          console.log(`file = ${file}`);
+        //   (index) Value
+        //   name	'美金.csv'
+        //   lastModified	1658199841830
+        //   lastModifiedDate	Tue Jul 19 2022 11:04:01 GMT+0800 (台北標準時間)
+        //   size	17897
+          console.table(file);
+        //   (index) name lastModified lastModifiedDate webkitRelativePath size type Value
+        //   0	'美金.csv'	1658199841830	Tue Jul 19 2022 11:04:01 GMT+0800 (台北標準時間)	''	17897	'text/csv'
+          console.log(`e.target.files`);
+          console.table(e.target.files);
+          if (!file) {
+              return;
+          }
+          var reader = new FileReader();
+          reader.onload = function(e) {
+              var contents = e.target.result;
+              fileInput.func(contents)
+              document.body.removeChild(fileInput)
+          }
+          reader.readAsText(file)
+      }
+      fileInput = document.createElement("input")
+      fileInput.type='file'
+      fileInput.style.display='none'
+      fileInput.onchange=readFile
+      fileInput.func=func
+      document.body.appendChild(fileInput)
+      clickElem(fileInput);
+  }
+//--
+  function readm() {
+    //Access to fetch at 'file:///D:/Github/my-bli-gov/README.md' from origin 'null' has been blocked by CORS policy: Cross origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension, chrome-untrusted, https.
+    let src = "./README.md";
+    //src = "D:/a1.txt";
+    //src = "/index.js";
+    //src = "http://localhost/a1.txt";
+    // fetch(src).then((res) => {
+    //     console.log(`rm = ${res}`);
+    //     console.table(res);
+    // });
+    logFileText(src);
+    //readTextFile(src); //<= Call function ===== don't need "file:///..." just the path
+  }
+
+  const logFileText = async file => {
+    const response = await fetch(file)
+    const text = await response.text()
+    console.log(text)
+    }
+
+    function readTextFile(file) {
+        var rawFile = new XMLHttpRequest(); // XMLHttpRequest (often abbreviated as XHR) is a browser object accessible in JavaScript that provides data in XML, JSON, but also HTML format, or even a simple text using HTTP requests.
+        rawFile.open("GET", file, false); // open with method GET the file with the link file ,  false (synchronous)
+        rawFile.onreadystatechange = function ()
+        {
+            if(rawFile.readyState === 4) // readyState = 4: request finished and response is ready
+            {
+                if(rawFile.status === 200) // status 200: "OK"
+                {
+                    var allText = rawFile.responseText; //  Returns the response data as a string
+                    console.log(allText); // display text on the console
+                }
+            }
+        }
+        rawFile.send(null); //Sends the request to the server Used for GET requests with param null
+    }
+//--
 
 window.onload = function() {
     console.log("onload");
