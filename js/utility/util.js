@@ -37,6 +37,30 @@ function matrixMxN(m, n) {
     return ans;
 }
 
+// failed
+// function randomInt(max) {
+//     return randomInt(0, max);
+// }
+function randomInt(max, min = 0) {
+    return min + Math.floor((max - min) * Math.random());
+}
+
+function transposeMatrix(a) {
+    if (a == null) return a;
+    let n = a.length;
+    if (n == 0) return a;
+    let m = a[0].length;
+
+    let b = matrixMxN(m, n);
+    let i = 0, j = 0;
+    for (i = 0; i < n; i++) {
+        for (j = 0; j < m; j++) {
+            b[j][i] = a[i][j];
+        }
+    }
+    return b;
+}
+
 // Define functions
 function clock(domID) {
     const it = document.getElementById(domID);

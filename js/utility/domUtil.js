@@ -56,6 +56,10 @@ function noDom(domID) {
     console.log(`Element not found for id = ${domID}`);
 }
 
+function create(tag) {
+    return document.createElement(tag);
+}
+
 function callOnClick(domID) {
     let e = document.getElementById(domID);
     if (e) {
