@@ -113,20 +113,32 @@ function makeCardTable() {
     //     ["一般機率",],
     //     ["10抽機率",],
     // ];
-    let i, j, n = 4, m = 10;
+    let n = 2, m = 10, max = 1000;
     let data = matrixMxN(n, m);
-    for (i = 0; i < n; i++) {
-        for (j = 0; j < m; j++) {
+    let r = new Random();
+    let x;
+    let count = [];
+    for (var i = 0; i < max; i++) {
+        count[i] = 0;
+    }
+    for (var i = 0; i < n; i++) {
+        for (var j = 0; j < m; j++) {
             //let x = Math.floor(Math.random() * 1_000);
-            let x = randomInt(1000);
+            //let x = randomInt(1000);
+            x = r.nextInt(max);
+            count[x]++;
             //console.log(`x = ${x}`);
             data[i][j] = x;
         }
     }
     makeTable("cardTable", data);
+    //console.table(count);
 }
 
 function makePoolTable() {
+    const drawWidth = 10;
+    const drawHeight = 20;
+    const applyTenDraw = true;
     let K = 1000;
     let normal = [350, 80, 20, 450, 100];
     let tenUp = [0, 960, 40, 0, 0];
@@ -256,6 +268,7 @@ function makePoolTable() {
                 tenUpP[i][j][k] = it[i][j][k];
             }
         }
+        // overwite the probability
         tenUpP[i][0][0] = tenUps[i];
     }
 
@@ -284,14 +297,9 @@ function makePoolTable() {
         // [2, 120, 34, -1],
         // [1,  50, 13, -1],
 
-
-    // let data = [
-    //     ["項目", "Hero 3 ☆", "Hero 4 ☆", "Hero 5 ☆", "Sidekick 3 ☆", "Sidekick 4 ☆"],
-    //     ["一般機率",],
-    //     ["10抽機率",],
-    // ];
     let dataT = ["Hero 3 ☆", "Hero 4 ☆", "Hero 5 ☆", "Sidekick 3 ☆", "Sidekick 4 ☆"];
-    let n = 20, m = 10;
+    // draw card size = n * m
+    let n = drawHeight, m = drawWidth;
     let data = matrixMxN(1+n, 1+m);
     let drawn = {};
     for (var i = 0; i < dataT.length; i++) {
@@ -302,8 +310,9 @@ function makePoolTable() {
             }
         }
     }
-    var applyTenDraw = true;
+    let rand = new Random();
     let w = Math.max(data.length, data[0].length);
+    // fill in headers
     for (var i = 0; i < w; i++) {
         if (i < data.length) {
             data[i][0] = `R# ${i}`;
@@ -314,24 +323,25 @@ function makePoolTable() {
     }
     for (var i = 0; i < n; i++) {
         for (var j = 0; j < m; j++) {
-            let up;
+            let up = 0;
             if (applyTenDraw) {
-                up = j == 0 ? 1 : 0;
-            } else {
-                up = 0;
+                if (j == 0) {
+                    up = 1;
+                }
             }
+
             let cdf = cardCDF[up];
             let pdf = pdfs[up];
             let card = cards[up];
             //console.log(`up = ${up} on (i, j) = (${i}, ${j})`);
-            let x1, x2;
-            x1 = randomInt(K);
+            let x1;
+            x1 = rand.nextInt(K);
             let y = getFx(x1, cdf);
             let max = pdf[y];
-            x2 = randomInt(max);
-            let y2 = getCard(x2, max, card[y]);
+            let y2 = getCard(rand, max, card[y]);
             //console.log(`x1 = ${x1}`);
-            let end = x1 + "</br>" + dataT[y] + "</br>" + y2;
+            //let end = x1 + "</br>" + dataT[y] + "</br>" + y2;
+            let end = dataT[y] + "</br>" + y2;
             // <b></b>, = bold, <i></i> = italic
             let key = dataT[y] + " " + y2;
             drawn[key] = drawn[key] + 1;
@@ -346,6 +356,15 @@ function makePoolTable() {
     }
     makeTable("random2", data);
     console.table(drawn);
+
+    let summary = [];
+    var i = 0;
+    for (const key in drawn) {
+        let v = drawn[key];
+        summary[i] = [key, v];
+        i++;
+    }
+    makeTable("summary", summary); // how to sort the map keys?
 }
 
 // return i, where i is smallest that a[i] > x
@@ -358,10 +377,11 @@ function getFx(x, a) {
     return -1;
 }
 
-function getCard(p, max, a) {
+function getCard(rand, max, a) {
+    let p = rand.nextInt(max);
     let now = p;
     let passed = 0;
-    console.log(`getCard ${max}, ${p}, ${a}`);
+    //console.log(`getCard ${max}, ${p}, ${a}`);
     for (var i = 0; i < a.length; i++) {
         let x = a[i];
         if (x[0] >= 0) {
@@ -371,17 +391,16 @@ function getCard(p, max, a) {
                 now -= pr;
                 passed += pr;
                 if (now < 0) {
-                    console.log(`return ${x[j]}`);
+                    //console.log(`return ${x[j]}`);
                     return x[j];
                 }
             }
         } else {
             // equal cases
             let eqs = x.length - 1; // equal card number
-            let each = (max - passed) / eqs;
-            let r = Math.floor(now / each);
-            console.log(`eqs = ${eqs}, each = ${each}, ${r}, return ${x[1+r]}`);
-            return x[1 + r]; // x[0] = -1
+            let p2 = rand.nextInt(eqs);
+            //console.log(`eqs = ${eqs}, p = ${p}, p2 = ${p2}, return ${x[1+p2]}`);
+            return x[1 + p2]; // x[0] = -1
         }
     }
 }

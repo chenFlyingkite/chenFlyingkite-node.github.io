@@ -38,9 +38,6 @@ function matrixMxN(m, n) {
 }
 
 // failed
-// function randomInt(max) {
-//     return randomInt(0, max);
-// }
 function randomInt(max, min = 0) {
     return min + Math.floor((max - min) * Math.random());
 }
@@ -90,4 +87,14 @@ function setupClock(domID) {
     setInterval(run, 1000);
 }
 
+class Random {
+    nextInt(max) {
+        return Math.floor(this.nextRange(0, max));
+    }
+
+    nextRange(min, max) {
+        return min + (max - min) * Math.random();
+    }
+
+}
 //export {powNK};
