@@ -8,7 +8,7 @@ const fixedDigit = 1;
 const MOD = powNK(10, fixedDigit);
 const COLOR_LEVEL = [1_500_000, 1_000_000, 500_000, 100_000, 10_000, -10_000, -100_000, -500_000, -1_000_000];
 const COLOR_CLASS = ["P5", "P4", "P3", "P2", "P1", "N1", "N2", "N3", "N4", "N5"];
-
+const rateUnit = 1000; // 1 + 1/rateUnit
 const tictac = new TicTac();
 
 //---
@@ -91,7 +91,7 @@ function showSpent(ms) {
 function updateRate() {
     const it = document.getElementById("rateOfReturn");
     const r = domValueInt("rateOfReturn");
-    const val = (100 + r) / 100;
+    const val = (rateUnit + r) / rateUnit;
     document.getElementById("sampleR").innerHTML = val;
 }
 
@@ -116,7 +116,7 @@ function evalDeceasePay(oneA, rateAt, yearAt) {
     const r = rateAt;
     const N = yearAt;
     let val = 0.0;
-    val = oneA * Math.pow((100 + r) / 100, N);
+    val = oneA * Math.pow((rateUnit + r) / rateUnit, N);
     val = Math.round(val * nf) / nf;
     return val;
 }
@@ -141,7 +141,7 @@ function evalSurvivalPay(oneM, rateAt, yearAt) {
     const nf = MOD; // %.1f
     const r = rateAt;
     const N = yearAt;
-    const r12 = (r) / 1200; // = if r = 3, 1 + 3% / 12
+    const r12 = (r) / (12 * rateUnit); // = if r = 3, 1 + 0.3% / 12
     let val = 0.0;
     val = oneM * (Math.pow(1 + r12, N * 12) - 1) / r12;
     val = Math.round(val * nf) / nf;
@@ -165,7 +165,7 @@ function makeData(year, rate) {
     // fill in two columns
     for (let i = 1; i <= rate; i++) {
         ans[i][0] = i;
-        ans[i][1] = (100 + i) / 100;
+        ans[i][1] = (rateUnit + i) / rateUnit;
     }
     return ans;
 }
