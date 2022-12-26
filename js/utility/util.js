@@ -61,13 +61,12 @@ function transposeMatrix(a) {
 // Define functions
 function clock(domID) {
     const it = document.getElementById(domID);
-    // Get today's date and time
-    let d = new Date();
-    //var now = d.getTime(); // long value
-    //var now = d.toISOString(); // yyyy-mm-ddThh:MM:ss.SSSZ like 2022-03-14T10:26:34
-    var now = d.toLocaleString();// Date = 2022/3/15, Time = 上午10:47:46, Locale = Date + Time
-
     if (it) {
+        // Get today's date and time
+        let d = new Date();
+        //var now = d.getTime(); // long value
+        //var now = d.toISOString(); // yyyy-mm-ddThh:MM:ss.SSSZ like 2022-03-14T10:26:34
+        var now = d.toLocaleString();// Date = 2022/3/15, Time = 上午10:47:46, Locale = Date + Time
         it.innerHTML = "現在時間: " + now;
     }
 }
